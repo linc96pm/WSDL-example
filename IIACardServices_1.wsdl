@@ -1,0 +1,1060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--$HeadURL$ $Id$--><definitions name="IIACardServices" targetNamespace="urn:IIACardServices" xmlns:typens="urn:IIACardServices" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <!--Types-->
+  <types>
+    <xsd:schema targetNamespace="urn:IIACardServices" xmlns="http://www.w3.org/2001/XMLSchema">
+      <xsd:element name="CardServiceException">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="actionCode" type="xsd:string"/>
+            <xsd:element name="actionDescription" type="xsd:string"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="DataManagementException">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="resultCode" type="xsd:decimal"/>
+            <xsd:element name="resultText" type="xsd:string"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:simpleType name="dateTime">
+        <xsd:restriction base="xsd:dateTime"/>
+      </xsd:simpleType>
+      <!--getCardholderInformation service {-->
+      <xsd:simpleType name="institutionIdType">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="11"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="cardholderIdType">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="19"/>
+          <xsd:pattern value="[0-9]*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <!--} getCardholderInformation service-->
+      <xsd:simpleType name="PrimaryAccountNumber">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="19"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="ExpirationDate">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="4"/>
+          <xsd:maxLength value="4"/>
+          <xsd:pattern value="[0-9]{4}"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="CardSecurityCode">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="3"/>
+          <xsd:maxLength value="4"/>
+          <xsd:pattern value="[0-9]*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="TransactionDateTime">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="14"/>
+          <xsd:maxLength value="14"/>
+          <xsd:pattern value="[0-9]{14}"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="Currency">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="3"/>
+          <xsd:maxLength value="3"/>
+          <xsd:pattern value="([A-Z])*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <!--enum type-->
+      <xsd:simpleType name="AccountType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="DEFAULT"/>
+          <xsd:enumeration value="Offline chip"/>
+          <xsd:enumeration value="Loyalty"/>
+          <xsd:enumeration value="Savings"/>
+          <xsd:enumeration value="Cheque"/>
+          <xsd:enumeration value="Credit"/>
+          <xsd:enumeration value="Universal"/>
+          <xsd:enumeration value="Investment"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="AccountStatus">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="Active"/>
+          <xsd:enumeration value="Dormant"/>
+          <xsd:enumeration value="Closed"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="DeviceType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="ATM"/>
+          <xsd:enumeration value="POS"/>
+          <xsd:enumeration value="Other"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="UnlockingReason">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="Expired"/>
+          <xsd:enumeration value="Operator"/>
+          <xsd:enumeration value="Parent"/>
+          <xsd:enumeration value="Transaction"/>
+          <xsd:enumeration value="Waste"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="TransactionResult">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="approved"/>
+          <xsd:enumeration value="declined"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="PINFormat">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="ISO-0"/>
+          <xsd:enumeration value="ISO-1"/>
+          <xsd:enumeration value="ISO-3"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="PINBlock">
+        <xsd:restriction base="xsd:string">
+          <xsd:minLength value="16"/>
+          <xsd:maxLength value="16"/>
+          <xsd:pattern value="[0-9A-F]{16}"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <!--enum type-->
+      <xsd:element name="getBlockingTransactions">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="institutionId" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="bankAccountId" type="xsd:string"/>
+            <xsd:element name="startingEventId" type="xsd:string" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:complexType name="AccountEvent">
+        <xsd:sequence>
+          <xsd:element name="eventId" type="xsd:string"/>
+          <xsd:element name="messageType" type="xsd:string"/>
+          <xsd:element name="primaryAccountNumber" type="xsd:string"/>
+          <xsd:element name="processingCode" type="xsd:string"/>
+          <xsd:element name="transactionAmount" type="xsd:string"/>
+          <xsd:element name="billingAmount" type="xsd:string"/>
+          <xsd:element name="localTransactionTime" type="xsd:string"/>
+          <xsd:element name="terminalDataCode" type="xsd:string"/>
+          <xsd:element name="acceptorBusinessCode" type="xsd:string"/>
+          <xsd:element name="acquirerId" type="xsd:string"/>
+          <xsd:element name="approvalCode" type="xsd:string"/>
+          <xsd:element name="terminalId" type="xsd:string"/>
+          <xsd:element name="cardAcceptorId" type="xsd:string"/>
+          <xsd:element name="cardAcceptorName" type="xsd:string"/>
+          <xsd:element name="transactionCurrencyCode" type="xsd:string"/>
+          <xsd:element name="billingCurrencyCode" type="xsd:string"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="AccountEvents">
+        <xsd:sequence>
+          <xsd:element name="item" type="typens:AccountEvent" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="getBlockingTransactionsResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="events" type="typens:AccountEvents" minOccurs="0"/>
+            <xsd:element name="hasMore" type="xsd:string"/>
+            <xsd:element name="actionCode" type="xsd:string"/>
+            <xsd:element name="totalRowCount" type="xsd:string"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:simpleType name="CardEventType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="authorisation"/>
+          <xsd:enumeration value="transaction"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="FeeInfo">
+        <xsd:sequence>
+          <xsd:element name="feeProgramTransactionCounter" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="feeProgramTransactionMaxCount" type="xsd:decimal" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="CardStatusType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="hot"/>
+          <xsd:enumeration value="user"/>
+          <xsd:enumeration value="issuer"/>
+          <xsd:enumeration value="card"/>
+          <xsd:enumeration value="card2"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType name="CardStatusNoteType">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="30"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CardStatus">
+        <xsd:sequence>
+          <xsd:element name="type" type="typens:CardStatusType"/>
+          <xsd:element name="actionCode" type="xsd:string"/>
+          <xsd:element name="actionDescription" type="xsd:string"/>
+          <xsd:element name="effectiveDate" type="xsd:dateTime" minOccurs="0"/>
+          <xsd:element name="note" type="typens:CardStatusNoteType" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CardStatuses">
+        <xsd:sequence>
+          <xsd:element name="item" type="typens:CardStatus" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <!--getCardholderInformation service {-->
+      <xsd:complexType name="AccountRecordList">
+        <xsd:sequence>
+          <xsd:element name="listSize" type="xsd:decimal"/>
+          <xsd:element name="account" type="typens:AccountRecord" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CardRecordList">
+        <xsd:sequence>
+          <xsd:element name="listSize" type="xsd:decimal"/>
+          <xsd:element name="card" type="typens:CardRecord" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CardAccountRelation">
+        <xsd:sequence>
+          <xsd:element name="institutionId" type="typens:institutionIdType"/>
+          <xsd:element name="cardholderId" type="typens:cardholderIdType"/>
+          <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber" minOccurs="0"/>
+          <xsd:element name="cardSequenceNumber" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="accountId" type="xsd:string" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CardAccountRelationList">
+        <xsd:sequence>
+          <xsd:element name="listSize" type="xsd:decimal"/>
+          <xsd:element name="cardAccountRelation" type="typens:CardAccountRelation" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CardholderRecord">
+        <xsd:sequence>
+          <xsd:element name="institutionId" type="typens:institutionIdType" minOccurs="0"/>
+          <xsd:element name="cardholderId" type="typens:cardholderIdType" minOccurs="0"/>
+          <xsd:element name="effectiveDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="updateDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="parentInstitutionId" type="typens:institutionIdType" minOccurs="0"/>
+          <xsd:element name="parentCardholderId" type="typens:cardholderIdType" minOccurs="0"/>
+          <xsd:element name="cardholderPassword" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="cardholderMessage" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="riskGroup" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="riskGroup2" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="cardholderName" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="additionalInfo" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="personCode" type="xsd:string" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="getCardholderInformation">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="institutionId" type="typens:institutionIdType"/>
+            <xsd:element name="cardholderId" type="typens:cardholderIdType"/>
+            <xsd:element name="returnCards" type="xsd:boolean" default="false"/>
+            <xsd:element name="returnAccounts" type="xsd:boolean" default="false"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getCardholderInformationResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="cardholder" type="typens:CardholderRecord"/>
+            <xsd:element name="cards" type="typens:CardRecordList" minOccurs="0"/>
+            <xsd:element name="accounts" type="typens:AccountRecordList" minOccurs="0"/>
+            <xsd:element name="cardAccountRelations" type="typens:CardAccountRelationList" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!--} getCardholderInformation service-->
+      <!--RmsStopStatus-->
+      <xsd:complexType name="RmsStopStatus">
+        <xsd:sequence>
+          <xsd:element name="priority" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="effectiveDate" type="xsd:date" minOccurs="0"/>
+          <xsd:element name="updateDate" type="xsd:date" minOccurs="0"/>
+          <xsd:element name="purgeDate" type="xsd:date" minOccurs="0"/>
+          <xsd:element name="actionCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="ruleExpression" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="HoldRecord">
+        <xsd:sequence>
+          <xsd:element name="id" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="bankAccountId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="amount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="currency" type="typens:Currency" minOccurs="0"/>
+          <xsd:element name="exponent" type="xsd:decimal" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="HoldsList">
+        <xsd:sequence>
+          <xsd:element name="hold" type="typens:HoldRecord" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <!--new services-->
+      <xsd:complexType name="ProcessingEvent">
+        <xsd:sequence>
+          <xsd:element name="eventUniqueId" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="institutionId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="requestDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="updateDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="cardType" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="deviceType" type="typens:DeviceType" minOccurs="0"/>
+          <xsd:element name="messageTypeIdentifier" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="childEventUniqueId" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="riskGroup" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="reversed" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="unlockingReason" type="typens:UnlockingReason" minOccurs="0"/>
+          <xsd:element name="unlockingDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="commissionGroup" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="commissionId" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber" minOccurs="0"/>
+          <xsd:element name="processingCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="transactionAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="reconciliationAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="billingAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="transmissionDateTime" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="reconciliationConversionRate" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="billingConversionRate" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="systemTraceAuditNumber" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="localTransactionDateTime" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="cardExpiry" type="typens:ExpirationDate" minOccurs="0"/>
+          <xsd:element name="pointOfServiceDataCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="cardSequenceNumber" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="functionCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="reasonCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="acceptorBusinessCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="reconciliationDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="reconciliationId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="originalTransactionAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="acquirerReferenceData" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="acquirerId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="forwarderId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="retrievalReferenceNumber" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="approvalCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="actionCode" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="acceptorTerminalId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="acceptorId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="acceptorNameLocation" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="fees" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="transactionCurrency" type="typens:Currency" minOccurs="0"/>
+          <xsd:element name="reconciliationCurrency" type="typens:Currency" minOccurs="0"/>
+          <xsd:element name="billingCurrency" type="typens:Currency" minOccurs="0"/>
+          <xsd:element name="additionalAmounts" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="originalMessageTypeIdentifier" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="originalSystemTraceAuditNumber" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="originalLocalDateTime" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="originalAcquirerId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="dataRecord" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="destinationInstitutionId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="originatorInstitutionId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="issuerReferenceData" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="payee" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="receivingInstitutionId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="accountId1" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="accountId2" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="transactionDescription" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="transactionExponent" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="reconciliationExponent" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="billingExponent" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="holds" type="typens:HoldsList" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CardRecord">
+        <xsd:sequence>
+          <xsd:element name="institutionId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber" minOccurs="0"/>
+          <xsd:element name="effectiveDate" type="xsd:dateTime" minOccurs="0"/>
+          <xsd:element name="updateDate" type="xsd:dateTime" minOccurs="0"/>
+          <xsd:element name="prefixNumber" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="expiry" type="typens:ExpirationDate" minOccurs="0"/>
+          <xsd:element name="expiry2" type="typens:ExpirationDate" minOccurs="0"/>
+          <xsd:element name="cardSequenceNumber" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="cardSequenceNumber2" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="cardholderId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="nameOnCard" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="cardholderPassword" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="cardholderMessage" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="accountRestrictionsFlag" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="commissionGroup" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="cardUserId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="additionalInfo" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="riskGroup" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="riskGroup2" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="statuses" type="typens:CardStatuses" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="AccountRecord">
+        <xsd:sequence>
+          <xsd:element name="institutionId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="accountId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="bankAccountId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="currency" type="typens:Currency" minOccurs="0"/>
+          <xsd:element name="cardholderId" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="effectiveDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="updateDate" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="accountType" type="typens:AccountType" minOccurs="0"/>
+          <xsd:element name="amountSetTime" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="initialAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="bonusAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="bonusAmountExpiry" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="creditLimit" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="creditLimitExpiry" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="lockedBackofficeAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="lockTime" type="typens:dateTime" minOccurs="0"/>
+          <xsd:element name="lockedAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="shadowAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="commissionGroup" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="timestamp" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="priority" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="status" type="typens:AccountStatus" minOccurs="0"/>
+          <xsd:element name="additionalInfo" type="xsd:string" minOccurs="0"/>
+          <xsd:element name="availableAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="exponent" type="xsd:decimal" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="BalanceRecord">
+        <xsd:sequence>
+          <xsd:element name="currency" type="typens:Currency" minOccurs="0"/>
+          <xsd:element name="initialAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="bonusAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="creditLimit" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="lockedBackofficeAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="lockedBackofficeAmountOffline" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="lockedAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="availableAmount" type="xsd:decimal" minOccurs="0"/>
+          <xsd:element name="exponent" type="xsd:decimal" minOccurs="0"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="getAccounts">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber" minOccurs="0"/>
+            <xsd:element name="bankAccountId" type="xsd:string" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getAccountsResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="listSize" type="xsd:decimal"/>
+            <xsd:element name="account" type="typens:AccountRecord" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getTransactions">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber" minOccurs="0"/>
+            <xsd:element name="bankAccountId" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="cardUserId" type="typens:cardholderIdType" minOccurs="0"/>
+            <xsd:element name="transactionResult" type="typens:TransactionResult" minOccurs="0"/>
+            <xsd:element name="accountType" type="typens:AccountType" minOccurs="0"/>
+            <xsd:element name="listStartDate" type="typens:dateTime" minOccurs="0"/>
+            <xsd:element name="listEndDate" type="typens:dateTime" minOccurs="0"/>
+            <xsd:element name="returnExponent" type="boolean" default="false" minOccurs="0"/>
+            <xsd:element name="returnHolds" type="boolean" default="false" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getTransactionsResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="listStartDate" type="typens:dateTime"/>
+            <xsd:element name="listEndDate" type="typens:dateTime"/>
+            <xsd:element name="listSize" type="xsd:decimal"/>
+            <xsd:element name="transaction" type="typens:ProcessingEvent" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getCard">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getCardResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="card" type="typens:CardRecord"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getCardAccountsBalance">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber"/>
+            <xsd:element name="accountType" type="typens:AccountType" minOccurs="0"/>
+            <xsd:element name="currency" type="typens:Currency" minOccurs="0"/>
+            <xsd:element name="returnExponent" type="boolean" default="false" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getCardAccountsBalanceResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="listSize" type="xsd:decimal"/>
+            <xsd:element name="card" type="typens:CardRecord"/>
+            <xsd:element name="account" type="typens:AccountRecord" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="balance" type="typens:BalanceRecord"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!--new services-->
+      <xsd:element name="getCardRmsStopStatuses">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="getCardRmsStopStatusesResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="listSize" type="xsd:decimal" minOccurs="0"/>
+            <xsd:element name="rmsStopStatus" type="typens:RmsStopStatus" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="setCardCreditLimit">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber"/>
+            <xsd:element name="expirationDate" type="typens:ExpirationDate" minOccurs="0"/>
+            <xsd:element name="creditLimit" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="creditCurrencyCode" type="xsd:string" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="setCardCreditLimitResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="approvalCode" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="systemsTraceAuditNumber" type="xsd:string" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!--Services, which use IIA_DATAMGMT-->
+      <xsd:element name="unblockPin">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber"/>
+            <xsd:element name="expiry" type="typens:ExpirationDate"/>
+            <xsd:element name="note" type="xsd:string"/>
+            <xsd:element name="unblockOffline" type="boolean" default="true" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="unblockPinResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="updateAccount">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="account" type="typens:AccountRecord"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="updateAccountResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <!--ja viss ir ok, tad tuksums-->
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="updateRecords">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="account" type="typens:AccountRecord" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="card" type="typens:CardRecord" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="serviceExpiry" type="typens:dateTime" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="updateRecordsResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <!--ja viss ir ok, tad tuksums-->
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!--Services, which use IIA_DATAMGMT-->
+      <xsd:element name="importClientAcntCard">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="institutionId" type="xsd:string"/>
+            <xsd:element name="clientID" type="xsd:string"/>
+            <xsd:element name="ctime" type="typens:dateTime" minOccurs="0"/>
+            <xsd:element name="clnParamGrp1" type="xsd:string"/>
+            <xsd:element name="acntChange" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="clientName" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="clientPassword" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="accountID" type="xsd:string"/>
+            <xsd:element name="accountType" type="xsd:string"/>
+            <xsd:element name="accountCcy" type="xsd:string"/>
+            <xsd:element name="card" type="typens:PrimaryAccountNumber"/>
+            <xsd:element name="crdParamGrp1" type="xsd:string"/>
+            <xsd:element name="statusCode1" type="xsd:string"/>
+            <xsd:element name="expiryDate1" type="typens:dateTime"/>
+            <xsd:element name="commGrp" type="xsd:string"/>
+            <xsd:element name="addInfo" type="xsd:string" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="importClientAcntCardResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="aqEnqueue">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="service" type="xsd:string"/>
+            <xsd:element name="data" type="xsd:string"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="aqEnqueueResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:complexType name="PIN">
+        <xsd:sequence>
+          <xsd:element name="format" type="typens:PINFormat"/>
+          <xsd:element name="pinBlock" type="typens:PINBlock"/>
+          <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element name="issueCard">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="primaryAccountNumber" type="typens:PrimaryAccountNumber"/>
+            <xsd:element name="expirationDate" type="typens:ExpirationDate"/>
+            <xsd:element name="serviceExpiry" type="typens:dateTime" minOccurs="0"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="issueCardResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </types>
+  <!--Messages-->
+  <message name="getBlockingTransactionsIn">
+    <part name="body" element="typens:getBlockingTransactions"/>
+  </message>
+  <message name="getBlockingTransactionsOut">
+    <part name="body" element="typens:getBlockingTransactionsResponse"/>
+  </message>
+  <!--new services-->
+  <message name="getAccountsIn">
+    <part name="body" element="typens:getAccounts"/>
+  </message>
+  <message name="getAccountsOut">
+    <part name="body" element="typens:getAccountsResponse"/>
+  </message>
+  <message name="getTransactionsIn">
+    <part name="body" element="typens:getTransactions"/>
+  </message>
+  <message name="getTransactionsOut">
+    <part name="body" element="typens:getTransactionsResponse"/>
+  </message>
+  <message name="getCardIn">
+    <part name="body" element="typens:getCard"/>
+  </message>
+  <message name="getCardOut">
+    <part name="body" element="typens:getCardResponse"/>
+  </message>
+  <message name="getCardAccountsBalanceIn">
+    <part name="body" element="typens:getCardAccountsBalance"/>
+  </message>
+  <message name="getCardAccountsBalanceOut">
+    <part name="body" element="typens:getCardAccountsBalanceResponse"/>
+  </message>
+  <!--new services-->
+  <message name="getCardRmsStopStatusesIn">
+    <part name="body" element="typens:getCardRmsStopStatuses"/>
+  </message>
+  <message name="getCardRmsStopStatusesOut">
+    <part name="body" element="typens:getCardRmsStopStatusesResponse"/>
+  </message>
+  <message name="setCardCreditLimitIn">
+    <part name="body" element="typens:setCardCreditLimit"/>
+  </message>
+  <message name="setCardCreditLimitOut">
+    <part name="body" element="typens:setCardCreditLimitResponse"/>
+  </message>
+  <message name="importClientAcntCardIn">
+    <part name="body" element="typens:importClientAcntCard"/>
+  </message>
+  <message name="importClientAcntCardOut">
+    <part name="body" element="typens:importClientAcntCardResponse"/>
+  </message>
+  <message name="updateAccountIn">
+    <part name="body" element="typens:updateAccount"/>
+  </message>
+  <message name="updateAccountOut">
+    <part name="body" element="typens:updateAccountResponse"/>
+  </message>
+  <message name="updateRecordsIn">
+    <part name="body" element="typens:updateRecords"/>
+  </message>
+  <message name="updateRecordsOut">
+    <part name="body" element="typens:updateRecordsResponse"/>
+  </message>
+  <message name="unblockPinIn">
+    <part name="body" element="typens:unblockPin"/>
+  </message>
+  <message name="unblockPinOut">
+    <part name="body" element="typens:unblockPinResponse"/>
+  </message>
+  <message name="aqEnqueueIn">
+    <part name="body" element="typens:aqEnqueue"/>
+  </message>
+  <message name="aqEnqueueOut">
+    <part name="body" element="typens:aqEnqueueResponse"/>
+  </message>
+  <message name="CardServiceFault">
+    <part name="fault" element="typens:CardServiceException"/>
+  </message>
+  <message name="DataManagementFault">
+    <part name="dataMgmtFault" element="typens:DataManagementException"/>
+  </message>
+  <message name="getCardholderInformationIn">
+    <part name="body" element="typens:getCardholderInformation"/>
+  </message>
+  <message name="getCardholderInformationOut">
+    <part name="body" element="typens:getCardholderInformationResponse"/>
+  </message>
+  <message name="issueCardIn">
+    <part name="body" element="typens:issueCard"/>
+  </message>
+  <message name="issueCardOut">
+    <part name="body" element="typens:issueCardResponse"/>
+  </message>
+  <!--Port-->
+  <portType name="CardServicesPort">
+    <operation name="getBlockingTransactions">
+      <input message="typens:getBlockingTransactionsIn"/>
+      <output message="typens:getBlockingTransactionsOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <!--getCardholderInformation service-->
+    <operation name="getCardholderInformation">
+      <input message="typens:getCardholderInformationIn"/>
+      <output message="typens:getCardholderInformationOut"/>
+      <fault name="DataManagementException" message="typens:DataManagementFault"/>
+    </operation>
+    <!--new services-->
+    <operation name="getAccounts">
+      <input message="typens:getAccountsIn"/>
+      <output message="typens:getAccountsOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="getTransactions">
+      <input message="typens:getTransactionsIn"/>
+      <output message="typens:getTransactionsOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="getCard">
+      <input message="typens:getCardIn"/>
+      <output message="typens:getCardOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="getCardAccountsBalance">
+      <input message="typens:getCardAccountsBalanceIn"/>
+      <output message="typens:getCardAccountsBalanceOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <!--new services-->
+    <operation name="getCardRmsStopStatuses">
+      <input message="typens:getCardRmsStopStatusesIn"/>
+      <output message="typens:getCardRmsStopStatusesOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="setCardCreditLimit">
+      <input message="typens:setCardCreditLimitIn"/>
+      <output message="typens:setCardCreditLimitOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="generateCardSecurityCode">
+      <input message="typens:generateCardSecurityCodeIn"/>
+      <output message="typens:generateCardSecurityCodeOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="importClientAcntCard">
+      <input message="typens:importClientAcntCardIn"/>
+      <output message="typens:importClientAcntCardOut"/>
+      <fault name="CardServiceException" message="typens:CardServiceFault"/>
+    </operation>
+    <operation name="updateAccount">
+      <input message="typens:updateAccountIn"/>
+      <output message="typens:updateAccountOut"/>
+      <fault name="DataManagementException" message="typens:DataManagementFault"/>
+    </operation>
+    <operation name="updateRecords">
+      <input message="typens:updateRecordsIn"/>
+      <output message="typens:updateRecordsOut"/>
+      <fault name="DataManagementException" message="typens:DataManagementFault"/>
+    </operation>
+    <operation name="unblockPin">
+      <input message="typens:unblockPinIn"/>
+      <output message="typens:unblockPinOut"/>
+      <fault name="DataManagementException" message="typens:DataManagementFault"/>
+    </operation>
+    <operation name="aqEnqueue">
+      <input message="typens:aqEnqueueIn"/>
+      <output message="typens:aqEnqueueOut"/>
+      <fault name="DataManagementException" message="typens:DataManagementFault"/>
+    </operation>
+    <operation name="issueCard">
+      <input message="typens:issueCardIn"/>
+      <output message="typens:issueCardOut"/>
+      <fault name="DataManagementException" message="typens:DataManagementFault"/>
+    </operation>
+  </portType>
+  <!--Binding-->
+  <binding name="CardServicesBinding" type="typens:CardServicesPort">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="getBlockingTransactions">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <!--getCardholderInformation-->
+    <operation name="getCardholderInformation">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="DataManagementException">
+        <soap:fault name="DataManagementException" use="literal"/>
+      </fault>
+    </operation>
+    <!--new services-->
+    <operation name="getAccounts">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="getTransactions">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="getCard">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="getCardAccountsBalance">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <!--new services-->
+    <operation name="getCardRmsStopStatuses">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="setCardCreditLimit">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="importClientAcntCard">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="CardServiceException">
+        <soap:fault name="CardServiceException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="updateAccount">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="DataManagementException">
+        <soap:fault name="DataManagementException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="updateRecords">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="DataManagementException">
+        <soap:fault name="DataManagementException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="unblockPin">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="DataManagementException">
+        <soap:fault name="DataManagementException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="aqEnqueue">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="DataManagementException">
+        <soap:fault name="DataManagementException" use="literal"/>
+      </fault>
+    </operation>
+    <operation name="issueCard">
+      <soap:operation soapAction="urn:IIACardServices"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+      <fault name="DataManagementException">
+        <soap:fault name="DataManagementException" use="literal"/>
+      </fault>
+    </operation>
+  </binding>
+  <!--Dummy endpoint-->
+  <service name="IIACardServices">
+    <port name="CardServicesPort" binding="typens:CardServicesBinding">
+      <soap:address location="http://127.0.0.1"/>
+    </port>
+  </service>
+</definitions><!--vim:set ts=2 sts=2 sw=2 sta et ai vb nowrap:-->
